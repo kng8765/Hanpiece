@@ -29,13 +29,14 @@ int luffy_turn(Player* luffy, Player* crocodile) {
 	}
 
 	switch (action) {
-	case 1:
+	case 1: // 크로커다일이 모래로 변신한 상태일때는 루피 공격력의 절반만큼 데미지를 입힌다.
 		printf("\n루피의 공격 : '고무고무 총!'\n");
 		if (crocodile->is_sand == 1) {
 			printf("크로커다일: %d - %d = %d\n", crocodile->hp, luffy->atk / 2, crocodile->hp - luffy->atk / 2);
 			crocodile->hp -= luffy->atk / 2;
 
 		}
+		//그게 아니라면 크로커다일 체력-루피 공격력
 		else {
 			crocodile->hp -= luffy->atk;
 		}
@@ -49,11 +50,13 @@ int luffy_turn(Player* luffy, Player* crocodile) {
 
 int crocodile_turn(Player* luffy, Player* crocodile) {
 	int action;
-
+	//모래로 변신한 크로커다일은 다음턴에 다시 모래로 변신할 수 없으며
+	//모래로 변신한 상태를 기본상태로 바꿔준다.
 	if (crocodile->is_sand == 1) {
 		action = RandomNumber(1, 2) * 2 - 1; // 1 또는 2가 나오면 1, 3이 나오면 2
 		crocodile->is_sand = 0;
 	}
+	//랜덤으로 행동 1~3 중 생성
 	else {
 		action = RandomNumber(1, 3);
 	}
@@ -65,14 +68,14 @@ int crocodile_turn(Player* luffy, Player* crocodile) {
 		luffy->hp -= crocodile->atk;
 		break;
 	case 2:
-	
+		//크로커다일이 모래로 변신하면 is_sand=1
 		printf("크로커다일이 몸을 모래로 바꿉니다.'\n\n");
 		crocodile->is_sand = 1;
 		break;
 	case 3:
 		printf("크로커다일은 여유를 부립니다:'니가 칠무해가 뭔지 알어?!'\n\n");
 		break;
-	}
+	} 
 }
 
 int game(int turn, Player* luffy, Player* crocodile) {
