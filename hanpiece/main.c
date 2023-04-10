@@ -2,16 +2,19 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <math.h>
 
 typedef struct Player {
 	int hp;
 	int atk;
 	int is_sand;
+	int energy;
 }Player;
 
 int RandomNumber(int min, int max) {
 	return (rand() % (max - min + 1)) + min;
 }
+
 int luffy_turn(Player* luffy, Player* crocodile) {
 	int action;
 
@@ -27,6 +30,7 @@ int luffy_turn(Player* luffy, Player* crocodile) {
 		}
 		break;
 	}
+	int n = 2;
 
 	switch (action) {
 	case 1: // 크로커다일이 모래로 변신한 상태일때는 루피 공격력의 절반만큼 데미지를 입힌다.
@@ -34,15 +38,27 @@ int luffy_turn(Player* luffy, Player* crocodile) {
 		if (crocodile->is_sand == 1) {
 			printf("크로커다일: %d - %d = %d\n", crocodile->hp, luffy->atk / 2, crocodile->hp - luffy->atk / 2);
 			crocodile->hp -= luffy->atk / 2;
+			printf("Crocodile  HP: %d _크로커다일의 방어로 데미지가 반감됩니다.\n", (crocodile->hp < 0 ? 0 : crocodile->hp));
+			if (luffy->energy == 1) {
+				luffy->energy = 0;
+				break;
+			}
 
 		}
 		//그게 아니라면 크로커다일 체력-루피 공격력
 		else {
 			crocodile->hp -= luffy->atk;
+			if (luffy->energy == 1) {
+				luffy->energy = 0;
+				break;
+			}
 		}
 		break;
 	case 2:
+		luffy->energy += 1;
+		luffy->atk *= 2;
 		printf("\n루피가 기를 모으고 있습니다.....\n");
+		printf("루피 atk : %d, %d배\n", luffy->atk, (int)pow(2, luffy->energy));
 		break;
 	}
 	
@@ -84,36 +100,36 @@ int game(int turn, Player* luffy, Player* crocodile) {
 		if (turn == 1) {
 			//루피 턴 함수 실행
 			luffy_turn(luffy, crocodile);
-			//크로커다일이 모래로 변신했을 때
-			if (crocodile->is_sand == 1) {   
-				printf("Luffy      HP: %d\n", (luffy->hp < 0 ? 0 : luffy->hp));
-				printf("Crocodile  HP: %d _크로커다일의 방어로 데미지가 반감됩니다.\n", (crocodile->hp < 0 ? 0 : crocodile->hp));
+			if (luffy->energy > 0) {
+				//크로커다일이 모래로 변신했을 때
+				if (crocodile->is_sand == 1) {
+					printf("Luffy      HP: %d, 기 %d배\n", (luffy->hp < 0 ? 0 : luffy->hp), (int)pow(2, luffy->energy));
+				}
+				else {
+					printf("Luffy      HP: %d\n", (luffy->hp < 0 ? 0 : luffy->hp));
+					printf("Crocodile  HP: %d\n", (crocodile->hp < 0 ? 0 : crocodile->hp));
+				}
+				//크로커다일 turn으로 바뀜
+				turn = 2;
 			}
-			else {
-				printf("Luffy      HP: %d\n", (luffy->hp < 0 ? 0 : luffy->hp));
-				printf("Crocodile  HP: %d\n", (crocodile->hp < 0 ? 0 : crocodile->hp));
+			// turn ==2 크로커다일 일때
+			else if (turn == 2) {
+				//크로커다일 턴 함수 실행
+				crocodile_turn(luffy, crocodile);
+				//크로커다일이 모래로 변신했을때
+				if (crocodile->is_sand == 1) {
+					printf("Luffy      HP: %d\n", (luffy->hp < 0 ? 0 : luffy->hp));
+					printf("Crocodile  HP: %d, 모래로 변신\n", (crocodile->hp < 0 ? 0 : crocodile->hp));
+				}
+				else {
+					printf("Luffy      HP: %d\n", (luffy->hp < 0 ? 0 : luffy->hp));
+					printf("Crocodile  HP: %d\n", (crocodile->hp < 0 ? 0 : crocodile->hp));
+				}
+				//루피 turn으로 바뀜
+				turn = 1;
 			}
-			//크로커다일 turn으로 바뀜
-			turn = 2;
-		}
-		// turn ==2 크로커다일 일때
-		else if (turn == 2) {
-			//크로커다일 턴 함수 실행
-			crocodile_turn(luffy, crocodile);
-			//크로커다일이 모래로 변신했을때
-			if (crocodile->is_sand == 1) {
-				printf("Luffy      HP: %d\n", (luffy->hp < 0 ? 0 : luffy->hp));
-				printf("Crocodile  HP: %d, 모래로 변신\n", (crocodile->hp < 0 ? 0 : crocodile->hp));
-			}
-			else {
-				printf("Luffy      HP: %d\n", (luffy->hp < 0 ? 0 : luffy->hp));
-				printf("Crocodile  HP: %d\n", (crocodile->hp < 0 ? 0 : crocodile->hp));
-			}
-			//루피 turn으로 바뀜
-			turn = 1;
 		}
 		
-
 		// 한 명의 체력이 0보다 작은 경우
 		if (luffy->hp <= 0 || crocodile->hp <= 0) {
 			printf("게임이 종료되었습니다.\n");
@@ -137,6 +153,7 @@ int game(int turn, Player* luffy, Player* crocodile) {
 
 
 int main(void) {
+	//intro
 	printf("==========한피스 시작==========\n");
 	printf("해적왕이 될 사나이 루피는 \n고잉 메리호를 타고 길을 떠난다.\n\n바다를 떠돌던 중\n칠무해 크로커다일을 만나 전투가 벌어지는데...\n강적을 만난 루피!\n과연 이길 수 있을 것인가?\n두둥!\n\n");
 
