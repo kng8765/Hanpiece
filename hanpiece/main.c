@@ -133,7 +133,6 @@ int game(int turn, Player* luffy, Player* crocodile) {
 			return 0;
 		}
 	}
-	
 }
 
 
