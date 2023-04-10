@@ -137,7 +137,6 @@ int game(int turn, Player* luffy, Player* crocodile) {
 
 
 int main(void) {
-	//intro
 	printf("==========한피스 시작==========\n");
 	printf("해적왕이 될 사나이 루피는 \n고잉 메리호를 타고 길을 떠난다.\n\n바다를 떠돌던 중\n칠무해 크로커다일을 만나 전투가 벌어지는데...\n강적을 만난 루피!\n과연 이길 수 있을 것인가?\n두둥!\n\n");
 
