@@ -32,7 +32,8 @@ int RandomNumber(int min, int max) {
 
 int luffy_turn(Player* luffy, Player* crocodile) {
 	int action;
-	if (luffy->state == 0) {
+
+	if (luffy->state == 0) {  //루피가 기모으는 상태가 아닐때 기본 공격력 저장
 		luffy->pre_atk = luffy->atk;
 	}
 	
@@ -56,43 +57,43 @@ int luffy_turn(Player* luffy, Player* crocodile) {
 
 		crocodile->pre_hp = crocodile->hp;
 
-		if (luffy->state > 0) {
+		if (luffy->state > 0) { //루피가 기를 모으는 상태일때
 			printf("루피 atk : %d\n\n", luffy->atk);
-			if (crocodile->state == 1) {
+			if (crocodile->state == 1) { //크로커다일이 모래로 변신한 상태일때
 				crocodile->hp -= luffy->atk / 2;
 				printf("크로커다일의 방어로 데미지가 반감됩니다...Damage : %d\n",luffy->atk/2);
 				printf("크로커다일 : %d - %d = %d\n\n", crocodile->pre_hp, luffy->atk / 2, (crocodile->hp < 0 ? 0 : crocodile->hp));
 				crocodile->state = 0;
 			}
 
-			else {
+			else {  //크로커다일이 모래로 변신하지 않은 상태일때
 				crocodile->hp -= luffy->atk;
 				printf("크로커다일 : %d - %d = %d\n\n", crocodile->pre_hp, luffy->atk, (crocodile->hp < 0 ? 0 : crocodile->hp));
 			}
 
-			luffy->state = 0;
-			luffy->atk = luffy->pre_atk;
+			luffy->state = 0;  //루피 기 모으기 상태 초기화
+			luffy->atk = luffy->pre_atk;  //루피 공격력 초기화
 		}
 
 		else {
-			if (crocodile->state == 1) {
+			if (crocodile->state == 1) { //크로커 다일이 모래로 변신한 상태일때
 				crocodile->hp -= luffy->atk / 2;
 				printf("크로커다일의 방어로 데미지가 반감됩니다.\n");
 				printf("크로커다일 : %d - %d = %d\n\n", crocodile->pre_hp, luffy->atk / 2, (crocodile->hp < 0 ? 0 : crocodile->hp));
 				crocodile->state = 0;
 			}
 
-			else {
+			else {  //크로커다일이 아무런 상태도 아닐때
 				crocodile->hp -= luffy->atk;
 				printf("크로커다일 : %d - %d = %d\n\n", crocodile->pre_hp, luffy->atk, (crocodile->hp < 0 ? 0 : crocodile->hp));
 			}
 		}	
 		break;
 			
-	case 2:
+	case 2:		//기 모으기
 		printf("\n루피가 기를 모으고 있습니다.....\n");
-		luffy->state += 1;
-		luffy->atk *= 2;
+		luffy->state += 1; //기 모을때 마다 state 값 1씩 증가
+		luffy->atk *= 2;  //기존 atk의 2배씩 증가
 		printf("루피 atk : %d\n\n", luffy->atk);
 
 		break;
@@ -105,14 +106,15 @@ int crocodile_turn(Player* luffy, Player* crocodile) {
 	
 	//랜덤으로 행동 1~3 중 생성
 	
-	action = RandomNumber(1, 3);
+	action = RandomNumber(1, 3);  //난수 1~3 중 1개 생성
 
-	crocodile->state = 0;
+	crocodile->state = 0; // 크로커다일 차례가 돌아오면 상태 초기화
 	
 	printf("\n==========크로커다일 차례==========\n");
 	switch (action) {
-	case 1:
-		if (luffy->state > 0) {
+	case 1:		//공격하기
+
+		if (luffy->state > 0) {  // 루피가 기를 모으고 있는 상태일때
 			printf("크로커다일의 공격: '사막의 폭풍!'\n\n");
 			printf("루피가 데미지를 받아서 루피가 모아둔 기가 흩어집니다.\n");
 			luffy->state = 0;
@@ -122,7 +124,7 @@ int crocodile_turn(Player* luffy, Player* crocodile) {
 			luffy->hp -= crocodile->atk;
 			printf("루피 : %d - %d = %d\n\n", luffy->pre_hp, crocodile->atk, (luffy->hp < 0 ? 0 : luffy->hp));
 		}
-		else {
+		else {		//루피가 기를 모으로 있지 않는 상태일때
 			printf("크로커다일의 공격: '사막의 폭풍!'\n\n");
 			luffy->pre_hp = luffy->hp;
 			luffy->hp -= crocodile->atk;
@@ -131,11 +133,11 @@ int crocodile_turn(Player* luffy, Player* crocodile) {
 		
 		break;
 
-	case 2:
+	case 2:		//모래로 변신
 		printf("크로커다일이 몸을 모래로 바꿉니다.'\n\n");
 		crocodile->state = 1;
 		break;
-	case 3:
+	case 3:		//여유 부리기
 		printf("크로커다일은 여유를 부립니다:'니가 칠무해가 뭔지 알어?!'\n\n");
 		break;
 	} 
@@ -148,6 +150,7 @@ int game(int turn, Player* luffy, Player* crocodile) {
 			//루피 턴 함수 실행
 			luffy_turn(luffy, crocodile);
 
+			// 루피 행동 후 플레이어 hp, state 출력
 			if (luffy->state != 0 && crocodile->state > 0) {
 				printf("Luffy      HP: %d, 기 %d배\n", (luffy->hp < 0 ? 0 : luffy->hp), (int)pow(2, luffy->state));
 				printf("Crocodile  HP: %d, 모래로 변신\n", (crocodile->hp < 0 ? 0 : crocodile->hp));
@@ -176,7 +179,7 @@ int game(int turn, Player* luffy, Player* crocodile) {
 			//크로커다일 턴 함수 실행
 			crocodile_turn(luffy, crocodile);
 
-			
+			//크로커다일 행동 후 hp, state 출력
 			if (crocodile->state > 0 && luffy->state != 0) {
 				printf("Luffy      HP: %d, 기 %d배\n", (luffy->hp < 0 ? 0 : luffy->hp), (int)pow(2, luffy->state));
 				printf("Crocodile  HP: %d, 모래로 변신\n", (crocodile->hp < 0 ? 0 : crocodile->hp));
